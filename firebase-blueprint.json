@@ -12,12 +12,50 @@
         "createdAt": { "type": "string", "format": "date-time", "description": "Creation date" }
       },
       "required": ["uid", "email", "role", "vipStatus", "createdAt"]
+    },
+    "Game": {
+      "title": "Game",
+      "description": "Generated game project",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "prompt": { "type": "string" },
+        "code": { "type": "string" },
+        "isPublic": { "type": "boolean" },
+        "plays": { "type": "number" },
+        "rating": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "name", "code", "createdAt"]
+    },
+    "Character": {
+      "title": "Character",
+      "description": "Generated 3D character",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "concept": { "type": "string" },
+        "code": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "concept", "code", "createdAt"]
     }
   },
   "firestore": {
     "/users/{userId}": {
       "schema": "User",
       "description": "User profiles"
+    },
+    "/games/{gameId}": {
+      "schema": "Game",
+      "description": "Generated games"
+    },
+    "/characters/{charId}": {
+      "schema": "Character",
+      "description": "Generated characters"
     }
   }
 }
