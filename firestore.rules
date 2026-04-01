@@ -1,0 +1,91 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - uid: string (required) - Firebase Auth UID
+    //   - email: string (required) - User email
+    //   - role: string (required, enum: ['user', 'admin']) - User role
+    //   - vipStatus: string (required, enum: ['none', 'basic', 'pro', 'ultra']) - VIP status
+    //   - createdAt: timestamp (required) - Creation date
+    //
+    // Collection: vip_proofs
+    // Document ID: {proofId}
+    // Fields:
+    //   - proofId: string (required) - Unique ID
+    //   - userId: string (required) - UID of the user
+    //   - userEmail: string (required) - Email of the user
+    //   - plan: string (required, enum: ['basic', 'pro', 'ultra']) - Requested plan
+    //   - proofUrl: string (required) - URL to the proof image
+    //   - status: string (required, enum: ['pending', 'approved', 'rejected']) - Status
+    //   - createdAt: timestamp (required) - Upload date
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "jhonatasjho92@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role', 'vipStatus', 'createdAt']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.role in ['user', 'admin'] &&
+             data.vipStatus in ['none', 'basic', 'pro', 'ultra'] &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidProof(data) {
+      return data.keys().hasAll(['proofId', 'userId', 'userEmail', 'plan', 'proofUrl', 'status', 'createdAt']) &&
+             data.proofId is string &&
+             data.userId is string &&
+             data.userEmail is string &&
+             data.plan in ['basic', 'pro', 'ultra'] &&
+             data.proofUrl is string &&
+             data.status in ['pending', 'approved', 'rejected'] &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      // Users can read their own profile, admin can read all
+      allow read: if isOwner(userId) || isAdmin();
+
+      // Users can create their own profile with 'ultra' status
+      allow create: if (isOwner(userId) && 
+                        request.resource.data.role == 'user' && 
+                        request.resource.data.vipStatus == 'ultra' &&
+                        isValidUser(request.resource.data)) || isAdmin();
+
+      // Users can update their own profile, but cannot change role
+      allow update: if (isOwner(userId) && 
+                        request.resource.data.role == resource.data.role && 
+                        isValidUser(request.resource.data)) || isAdmin();
+
+      // Only admin can delete users
+      allow delete: if isAdmin();
+    }
+  }
+}
