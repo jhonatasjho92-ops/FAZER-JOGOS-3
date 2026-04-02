@@ -557,6 +557,28 @@ export default function App() {
                     <>
                       <div className="absolute top-4 right-4 flex gap-2 z-10 opacity-0 group-hover:opacity-100 transition-all">
                         <button 
+                          onClick={() => { 
+                            const blob = new Blob([mapResult], { type: "text/html" });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = "map.html";
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                          className="p-2 bg-zinc-800 text-zinc-400 rounded-lg hover:text-white flex items-center gap-2 text-[10px] font-bold uppercase"
+                        >
+                          <Download className="w-3 h-3" />
+                          Download
+                        </button>
+                        <button 
+                          onClick={() => { setLastGeneratedCode(mapResult); setActiveMainTab("run"); }}
+                          className="p-2 bg-orange-500 text-black rounded-lg hover:bg-orange-400 flex items-center gap-2 text-[10px] font-bold uppercase"
+                        >
+                          <Play className="w-3 h-3" />
+                          Use in Engine
+                        </button>
+                        <button 
                           onClick={() => { navigator.clipboard.writeText(mapResult); alert("Code copied!"); }}
                           className="p-2 bg-zinc-800 text-zinc-400 rounded-lg hover:text-white"
                         >
@@ -668,9 +690,14 @@ export default function App() {
                   <p className="text-2xl font-black">{communityGames.length + myGames.length}</p>
                 </div>
                 <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl space-y-4">
-                  <BarChart className="w-8 h-8 text-orange-500" />
-                  <h3 className="font-bold uppercase text-sm tracking-widest">Traffic</h3>
-                  <p className="text-2xl font-black">Optimal</p>
+                  <Globe className="w-8 h-8 text-orange-500" />
+                  <h3 className="font-bold uppercase text-sm tracking-widest">Netlify Deploy</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    To deploy to Netlify:
+                    <br />1. Export project to ZIP (Settings)
+                    <br />2. Run 'npm run build' locally
+                    <br />3. Drag 'dist' folder to Netlify
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -709,6 +736,28 @@ export default function App() {
                   {charResult ? (
                     <>
                       <div className="absolute top-4 right-4 flex gap-2 z-10 opacity-0 group-hover:opacity-100 transition-all">
+                        <button 
+                          onClick={() => { 
+                            const blob = new Blob([charResult.code], { type: "text/html" });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = "character.html";
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                          className="p-2 bg-zinc-800 text-zinc-400 rounded-lg hover:text-white flex items-center gap-2 text-[10px] font-bold uppercase"
+                        >
+                          <Download className="w-3 h-3" />
+                          Download
+                        </button>
+                        <button 
+                          onClick={() => { setLastGeneratedCode(charResult.code); setActiveMainTab("run"); }}
+                          className="p-2 bg-orange-500 text-black rounded-lg hover:bg-orange-400 flex items-center gap-2 text-[10px] font-bold uppercase"
+                        >
+                          <Play className="w-3 h-3" />
+                          Use in Engine
+                        </button>
                         <button 
                           onClick={() => { navigator.clipboard.writeText(charResult.code); alert("Code copied!"); }}
                           className="p-2 bg-zinc-800 text-zinc-400 rounded-lg hover:text-white"
